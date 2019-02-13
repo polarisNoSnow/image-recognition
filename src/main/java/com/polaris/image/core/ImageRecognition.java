@@ -1,4 +1,4 @@
-package com.polaris.image;
+package com.polaris.image.core;
 
 import javax.swing.JFrame;
 

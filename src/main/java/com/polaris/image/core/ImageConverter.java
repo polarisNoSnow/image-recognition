@@ -1,4 +1,4 @@
-package com.polaris.image;
+package com.polaris.image.core;
 
 import javax.swing.JFrame;
 
@@ -14,12 +14,15 @@ import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameRecorder;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 
+import com.polaris.image.util.GeneralContants;
+
 /**
  * @author 北辰不落雪 
  * @date 2019年2月12日 下午2:45:12 
  * @Description 转流器
  */
 public class ImageConverter {
+	
 	/**
 	 * 转流器
 	 * @param inputFile
@@ -32,7 +35,7 @@ public class ImageConverter {
 		Loader.load(opencv_objdetect.class);
 		long startTime=0;
 		FrameGrabber grabber =FFmpegFrameGrabber.createDefault(inputFile);
-		grabber.setOption("rtsp_transport", "tcp");
+		//grabber.setOption("rtsp_transport", "tcp");
 		try {
 			grabber.start();
 		} catch (Exception e) {
@@ -52,7 +55,7 @@ public class ImageConverter {
 			System.out.println("没有取到第一帧");
 		}
 		//如果想要保存图片,可以使用 
-		opencv_imgcodecs.cvSaveImage("C:\\Users\\tyb\\Desktop\\hello.jpg", grabbedImage); //来保存图片
+		//opencv_imgcodecs.cvSaveImage("C:\\Users\\tyb\\Desktop\\hello.jpg", grabbedImage); //来保存图片
 		FrameRecorder recorder;
 		try {
 			recorder = FrameRecorder.createDefault(outputFile, 1280, 720);
@@ -99,7 +102,7 @@ public class ImageConverter {
 			recorder.record(rotatedFrame);
 			}
 			
-			Thread.sleep(40);
+			Thread.sleep(10);
 		}
 		frame.dispose();
 		recorder.stop();
@@ -110,9 +113,9 @@ public class ImageConverter {
 	public static void main(String[] args)
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
 		String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		String outputFile="C:\\Users\\tyb\\Desktop\\conver.mp4";
+		String outputFile = GeneralContants.desktop_path + "ImageConverter.mp4";
 		try {
-			recordPush(inputFile, outputFile,25);
+			recordPush(inputFile, outputFile,60);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
