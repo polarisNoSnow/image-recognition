@@ -1,4 +1,4 @@
-package com.polaris.image;
+package com.polaris.image.core;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;

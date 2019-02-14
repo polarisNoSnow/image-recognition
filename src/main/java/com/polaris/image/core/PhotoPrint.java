@@ -1,4 +1,4 @@
-package com.polaris.image;
+package com.polaris.image.core;
 
 import java.awt.Font;
 import java.awt.Shape;
