@@ -24,7 +24,7 @@ import com.polaris.image.util.GeneralContants;
 public class ImageConverter {
 	
 	/**
-	 * 转流器
+	 * 转流器：获取视频流，并推送
 	 * @param inputFile
 	 * @param outputFile
 	 * @throws Exception
