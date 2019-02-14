@@ -52,7 +52,7 @@ public class ImageConverter {
 			System.out.println("没有取到第一帧");
 		}
 		//如果想要保存图片,可以使用 
-		opencv_imgcodecs.cvSaveImage("C:\\Users\\tyb\\Desktop\\hello.jpg", grabbedImage); //来保存图片
+		//opencv_imgcodecs.cvSaveImage("C:\\Users\\tyb\\Desktop\\hello.jpg", grabbedImage); //来保存图片
 		FrameRecorder recorder;
 		try {
 			recorder = FrameRecorder.createDefault(outputFile, 1280, 720);
@@ -99,7 +99,7 @@ public class ImageConverter {
 			recorder.record(rotatedFrame);
 			}
 			
-			Thread.sleep(40);
+			Thread.sleep(20);
 		}
 		frame.dispose();
 		recorder.stop();
@@ -110,9 +110,9 @@ public class ImageConverter {
 	public static void main(String[] args)
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
 		String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		String outputFile="C:\\Users\\tyb\\Desktop\\conver.mp4";
+		String outputFile="d:\\Desktop\\conver.mp4";
 		try {
-			recordPush(inputFile, outputFile,25);
+			recordPush(inputFile, outputFile,30);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

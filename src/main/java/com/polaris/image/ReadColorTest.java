@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
  */
 public class ReadColorTest {
 	/**
-	 * 读取一张图片的RGB值
+	 * 读取一张图片的RGB值，在日志中用符号记录
 	 * 
 	 * @throws Exception
 	 */
