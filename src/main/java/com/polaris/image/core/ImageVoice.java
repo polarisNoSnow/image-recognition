@@ -26,7 +26,7 @@ public class ImageVoice {
 	
 	public static void main(String[] args) {
 		try {
-			recordWebcamAndMicrophone(0, 2, GeneralContants.desktop_path+"voice.mp4", 720, 480, 60);
+			recordWebcamAndMicrophone(0, 2, GeneralContants.DESTOP_PATH+"voice.mp4", 720, 480, 60);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

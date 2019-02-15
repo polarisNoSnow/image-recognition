@@ -113,7 +113,7 @@ public class ImageConverter {
 	public static void main(String[] args)
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
 		String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		String outputFile = GeneralContants.desktop_path + "ImageConverter.mp4";
+		String outputFile = GeneralContants.DESTOP_PATH + "ImageConverter.mp4";
 		try {
 			recordPush(inputFile, outputFile,60);
 		} catch (Exception e) {

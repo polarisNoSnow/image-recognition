@@ -6,5 +6,6 @@ package com.polaris.image.util;
  * @Description
  */
 public class GeneralContants {
-	public static String desktop_path = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory().getPath()+"\\";
+	//桌面路径
+	public static String DESTOP_PATH = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory().getPath()+"\\";
 }
