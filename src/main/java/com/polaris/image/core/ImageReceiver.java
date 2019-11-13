@@ -6,6 +6,8 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameRecorder;
 
+import com.polaris.image.util.GeneralContants;
+
 /**
  * 参考：https://blog.csdn.net/eguid_1/article/details/52680802
  * @author 北辰不落雪 
@@ -58,7 +60,7 @@ public class ImageReceiver {
  
 		 String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
 		 // Decodes-encodes
-		 String outputFile = "C:\\Users\\tyb\\Desktop\\recorde.mp4";
+		 String outputFile = GeneralContants.DESTOP_PATH + "recorde.mp4";
 		 try {
 			frameRecord(inputFile, outputFile,1);
 		} catch (Exception e) {

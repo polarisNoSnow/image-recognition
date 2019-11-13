@@ -2,18 +2,12 @@ package com.polaris.image.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
- 
-
-
-
-
 
 import javax.imageio.ImageIO;
 /** 
  * 参考：https://blog.csdn.net/lazy_p/article/details/7165999
  * @author 北辰不落雪 
- * @date 2019年2月11日 下午4:34:56 
+ * @Date 2019年2月11日 下午4:34:56 
  * @Description 二值化、灰度化工具类
  */
 public class ImageUtil {
@@ -55,8 +49,12 @@ public class ImageUtil {
 		return this.getpPath()+this.getpName();
 	}
 	
+	/**
+	 * 图片二值化
+	 * @throws Exception
+	 */
 	public void binaryImage() throws Exception{
-		File file = new File(getPhoto());
+		File file = new File(this.getpPath()+"灰度化_"+this.getpName());
 		BufferedImage image = ImageIO.read(file);
 		
 		int width = image.getWidth();
@@ -71,9 +69,21 @@ public class ImageUtil {
 		}
 		
 		File newFile = new File(this.getpPath()+"二值化_"+this.getpName());
-		ImageIO.write(grayImage, "jpg", newFile);
+		ImageIO.write(grayImage, fileFormat(), newFile);
 	}
-	    
+	
+	/**
+	 * 图片文件格式
+	 * @return
+	 */
+	public String fileFormat() {
+		return this.getpName().substring(this.getpName().lastIndexOf(".")+1);
+	}
+	
+	/**
+	 * 图片灰度化
+	 * @throws Exception
+	 */
 	public void grayImage() throws Exception{
 		File file = new File(getPhoto());
 		BufferedImage image = ImageIO.read(file);
@@ -89,14 +99,20 @@ public class ImageUtil {
 		}
 		
 		File newFile = new File(this.getpPath()+"灰度化_"+this.getpName());
-		ImageIO.write(grayImage, "jpg", newFile);
+		ImageIO.write(grayImage, fileFormat(), newFile);
 	    }
 	    
 	    public static void main(String[] args) throws Exception {
 	    	ImageUtil demo = new ImageUtil();
-	    	demo.setpName("1.jpg");
-	    	demo.setpPath(GeneralContants.DESTOP_PATH);
+	    	demo.setpName("郡主.png");
+	    	demo.setpPath(GeneralContants.DESTOP_PATH+"\\images");
+	    	long grayStartTime = System.currentTimeMillis();
+	    	demo.grayImage();
+	    	long grayEndTime = System.currentTimeMillis();
 			demo.binaryImage();
-			demo.grayImage();
+			long binEndTime = System.currentTimeMillis();
+			
+			
+			System.out.println("灰度化时间："+(grayEndTime-grayStartTime)+"ms\n二值化时间："+(binEndTime-grayEndTime)+"ms");
 	    }
 }

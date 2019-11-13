@@ -5,7 +5,6 @@ import javax.swing.JFrame;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_objdetect;
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -55,7 +54,7 @@ public class ImageConverter {
 			System.out.println("没有取到第一帧");
 		}
 		//如果想要保存图片,可以使用 
-		//opencv_imgcodecs.cvSaveImage("C:\\Users\\tyb\\Desktop\\hello.jpg", grabbedImage); //来保存图片
+		//opencv_imgcodecs.cvSaveImage(GeneralContants.DESTOP_PATH+ "hello.jpg", grabbedImage); //来保存图片
 		FrameRecorder recorder;
 		try {
 			recorder = FrameRecorder.createDefault(outputFile, 1280, 720);

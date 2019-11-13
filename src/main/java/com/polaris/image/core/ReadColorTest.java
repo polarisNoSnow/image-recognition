@@ -10,11 +10,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
- 
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
+
+import com.polaris.image.util.GeneralContants;
  
 /**
  * 参考：https://blog.csdn.net/ubuntu_yanglei/article/details/46443929
@@ -60,7 +61,7 @@ public class ReadColorTest {
 			}
 			buffer.append("\r\n");
 		}
-		PrintWriter	out = new PrintWriter(new FileWriter(new File("C:\\Users\\tyb\\Desktop\\photoPrintTest.txt"),true),true);
+		PrintWriter	out = new PrintWriter(new FileWriter(new File(GeneralContants.DESTOP_PATH+ "photoPrintTest.txt"),true),true);
 		out.println(buffer.toString());
 		out.close();
 	}
@@ -90,12 +91,12 @@ public class ReadColorTest {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		zoomImage("C:\\Users\\tyb\\Desktop\\二值化.jpg","C:\\Users\\tyb\\Desktop\\test.jpg");
+		zoomImage(GeneralContants.DESTOP_PATH+ "二值化.jpg",GeneralContants.DESTOP_PATH+ "test.jpg");
 		int x = 0;
 		ReadColorTest rc = new ReadColorTest();
 		x = rc.getScreenPixel(100, 345);
 		System.out.println(x + " - ");
-		rc.getImagePixel("C:\\Users\\tyb\\Desktop\\test.jpg");
+		rc.getImagePixel(GeneralContants.DESTOP_PATH+ "test.jpg");
 	}
 	
 	/*

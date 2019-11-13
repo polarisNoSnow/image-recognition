@@ -12,10 +12,10 @@ public class PhotoPrint {
 			Font font = new Font("黑体", Font.PLAIN, 30);
 			AffineTransform at = new AffineTransform();
 			FontRenderContext frc = new FontRenderContext(at, true, true);
-			GlyphVector gv = font.createGlyphVector(frc, "JinCeon"); // 要显示的文字
-			Shape shape = gv.getOutline(5, 30);
-			int weith = 200;
-			int height = 40;
+			GlyphVector gv = font.createGlyphVector(frc, "MSF"); // 要显示的文字
+			Shape shape = gv.getOutline(8, 20);
+			int weith = 100;
+			int height = 20;
 			boolean[][] view = new boolean[weith][height];
 			for (int i = 0; i < weith; i++) {
 				for (int j = 0; j < height; j++) {
@@ -29,7 +29,7 @@ public class PhotoPrint {
 			for (int j = 0; j < height; j++) {
 				for (int i = 0; i < weith; i++) {
 					if (view[i][j]) {
-						System.out.print("@");// 替换成你喜欢的图案
+						System.out.print("-");// 替换成你喜欢的图案
 					} else {
 						System.out.print(" ");
 					}

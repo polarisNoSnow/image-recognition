@@ -14,6 +14,8 @@ import org.bytedeco.javacv.FrameRecorder;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 
+import com.polaris.image.util.GeneralContants;
+
 /**
  * 图形处理
  * @author 北辰不落雪 
@@ -23,7 +25,7 @@ import org.bytedeco.javacv.OpenCVFrameGrabber;
 public class ImageRecognition {
 	public static void main(String[] args) throws Exception, InterruptedException {
 	    try {
-			recordCamera("C:\\Users\\tyb\\Desktop\\video.mp4", 30);
+			recordCamera(GeneralContants.DESTOP_PATH+"video.mp4", 30);
 		} catch (org.bytedeco.javacv.FrameRecorder.Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,8 +69,20 @@ public class ImageRecognition {
 	public static void recordCamera(String outputFile, double frameRate)
 			throws Exception, InterruptedException, org.bytedeco.javacv.FrameRecorder.Exception {
 		Loader.load(opencv_objdetect.class);
-		FrameGrabber grabber = FrameGrabber.createDefault(0);//本机摄像头默认0，这里使用javacv的抓取器，至于使用的是ffmpeg还是opencv，请自行查看源码
-		grabber.start();//开启抓取器
+		FrameGrabber grabber = null;
+		int index =0;
+		boolean flag = true;
+		while(flag) {
+			try {
+				grabber = FrameGrabber.createDefault(0);//本机摄像头默认0，这里使用javacv的抓取器，至于使用的是ffmpeg还是opencv，请自行查看源码
+				grabber.start();//开启抓取器
+				flag = false;
+			}catch(Exception e) {
+				e.printStackTrace();
+				index++;
+			}
+		
+		}
  
 		OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();//转换器
 		IplImage grabbedImage = converter.convert(grabber.grab());//抓取一帧视频并将其转换为图像，至于用这个图像用来做什么？加水印，人脸识别等等自行添加
