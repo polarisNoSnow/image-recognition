@@ -1,5 +1,7 @@
 package com.polaris.image.core;
 
+import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
 
 import org.bytedeco.javacpp.Loader;
@@ -14,6 +16,7 @@ import org.bytedeco.javacv.FrameGrabber.Exception;
 import com.polaris.image.util.GeneralContants;
 
 import org.bytedeco.javacv.FrameRecorder;
+import org.bytedeco.javacv.Java2DFrameUtils;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 
@@ -90,6 +93,10 @@ public class ImageRecognition {
 		frame.setAlwaysOnTop(true);
 		Frame rotatedFrame=converter.convert(grabbedImage);//不知道为什么这里不做转换就不能推到rtmp
 		while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
+			//将IplImage转化为BufferedImage，然后做相关处理
+			//BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(grabbedImage);
+			//rotatedFrame = Java2DFrameUtils.toFrame(bufferedImage);
+			
 			rotatedFrame = converter.convert(grabbedImage);
 			frame.showImage(rotatedFrame);
 			if (startTime == 0) {
