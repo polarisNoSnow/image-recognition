@@ -94,7 +94,7 @@ public class ImageUtil {
 		}
 		String outPath = this.getpPath() + "二值化_" + this.getpName();
 		File newFile = new File(outPath);
-		ImageIO.write(grayImage, "jpg", newFile);
+		ImageIO.write(grayImage, CommonUtil.getSuffix(this.getpName()), newFile);
 		System.out.println("二值化完成："+outPath);
 	}
 
@@ -118,7 +118,7 @@ public class ImageUtil {
 		}
 		String outPath = this.getpPath() + "灰度化_" + this.getpName();
 		File newFile = new File(outPath);
-		ImageIO.write(grayImage, "jpg", newFile);
+		ImageIO.write(grayImage, CommonUtil.getSuffix(this.getpName()), newFile);
 		System.out.println("灰度化完成："+outPath);
 	}
 
@@ -128,11 +128,13 @@ public class ImageUtil {
 	 */
 	public void createAsciiPic() throws Exception{
 		// 字符串由复杂到简单
-		final String base = "@#&$%*o!;.";
+		String base = "@#&$%*o!;.";
+		String outTxt = CommonUtil.getPrefix(this.getpName())+".txt";
+		String outPhoto = CommonUtil.getPrefix(this.getpName())+"_ascii.jpeg";
 		BufferedWriter bw = null;
 		Graphics graphics = null;
 		try {
-			File file = new File(this.getpPath()+"test_appendfile.txt");
+			File file = new File(this.getpPath()+outTxt);
 			if(!file.exists()){
 				file.createNewFile();
 			}
@@ -160,8 +162,9 @@ public class ImageUtil {
 				}
 				bw.newLine();
 			}
-			FileOutputStream out = new FileOutputStream(this.getpPath()+"test_appendfile.jpeg");//输出图片的地址
-			ImageIO.write(bufferedImage, "jpeg", out);
+			String outPath = this.getpPath()+outPhoto;
+			FileOutputStream out = new FileOutputStream(outPath);//输出图片的地址
+			ImageIO.write(bufferedImage, CommonUtil.getSuffix(outPath), out);
 			System.out.println("输出完毕");
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -180,7 +183,7 @@ public class ImageUtil {
 	 * @param image 图片
 	 * @param width 图片宽
  	 * @param height 图片高
-	 * @param size 字体大小
+	 * @param size 字体大小（包含Font），会影响到输出效果，越小越清晰
 	 * @return
 	 */
 	private static Graphics createGraphics(BufferedImage image, int width,
