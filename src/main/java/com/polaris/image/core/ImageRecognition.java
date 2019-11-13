@@ -1,5 +1,7 @@
 package com.polaris.image.core;
 
+import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
 
 import org.bytedeco.javacpp.Loader;
@@ -10,7 +12,11 @@ import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameGrabber.Exception;
+
+import com.polaris.image.util.GeneralContants;
+
 import org.bytedeco.javacv.FrameRecorder;
+import org.bytedeco.javacv.Java2DFrameUtils;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 
@@ -25,9 +31,8 @@ import com.polaris.image.util.GeneralContants;
 public class ImageRecognition {
 	public static void main(String[] args) throws Exception, InterruptedException {
 	    try {
-			recordCamera(GeneralContants.DESTOP_PATH+"video.mp4", 30);
+			recordCamera( GeneralContants.DESTOP_PATH + "video.mp4", 30);
 		} catch (org.bytedeco.javacv.FrameRecorder.Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//openCamera();
@@ -60,7 +65,7 @@ public class ImageRecognition {
 	 * 按帧录制本机摄像头视频（边预览边录制，停止预览即停止录制）
 	 * 
 	 * @author eguid
-	 * @param outputFile -录制的文件路径，也可以是rtsp或者rtmp等流媒体服务器发布地址
+	 * @param outputFile -视频录制的文件保存路径，也可以是rtsp或者rtmp等流媒体服务器发布地址
 	 * @param frameRate - 视频帧率
 	 * @throws Exception
 	 * @throws InterruptedException
@@ -102,6 +107,10 @@ public class ImageRecognition {
 		frame.setAlwaysOnTop(true);
 		Frame rotatedFrame=converter.convert(grabbedImage);//不知道为什么这里不做转换就不能推到rtmp
 		while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
+			//将IplImage转化为BufferedImage，然后做相关处理
+			//BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(grabbedImage);
+			//rotatedFrame = Java2DFrameUtils.toFrame(bufferedImage);
+			
 			rotatedFrame = converter.convert(grabbedImage);
 			frame.showImage(rotatedFrame);
 			if (startTime == 0) {

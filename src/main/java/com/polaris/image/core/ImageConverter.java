@@ -23,17 +23,19 @@ import com.polaris.image.util.GeneralContants;
 public class ImageConverter {
 	
 	/**
-	 * 转流器：获取视频流，并推送
-	 * @param inputFile
-	 * @param outputFile
+	 * 转流器：
+	 * 从指定位置获取视频流，并推送到指定位置
+	 * @param inputDevicePath 视频输入位置(如：rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov)
+	 * @param outputDevicePath 视频输出位置（如：c:\\ImageConverter.mp4）
+	 * @param v_rs 帧率
 	 * @throws Exception
 	 * @throws org.bytedeco.javacv.FrameRecorder.Exception
 	 * @throws InterruptedException
 	 */
-	public static void recordPush(String inputFile,String outputFile,int v_rs) throws Exception, org.bytedeco.javacv.FrameRecorder.Exception, InterruptedException{
+	public static void recordPush(String inputDevicePath,String outputDevicePath,int v_rs) throws Exception, org.bytedeco.javacv.FrameRecorder.Exception, InterruptedException{
 		Loader.load(opencv_objdetect.class);
 		long startTime=0;
-		FrameGrabber grabber =FFmpegFrameGrabber.createDefault(inputFile);
+		FrameGrabber grabber =FFmpegFrameGrabber.createDefault(inputDevicePath);
 		//grabber.setOption("rtsp_transport", "tcp");
 		try {
 			grabber.start();
@@ -57,7 +59,7 @@ public class ImageConverter {
 		//opencv_imgcodecs.cvSaveImage(GeneralContants.DESTOP_PATH+ "hello.jpg", grabbedImage); //来保存图片
 		FrameRecorder recorder;
 		try {
-			recorder = FrameRecorder.createDefault(outputFile, 1280, 720);
+			recorder = FrameRecorder.createDefault(outputDevicePath, 1280, 720);
 		} catch (org.bytedeco.javacv.FrameRecorder.Exception e) {
 			throw e;
 		}
@@ -109,6 +111,7 @@ public class ImageConverter {
 		grabber.stop();
 		System.exit(-1);
 	}
+	
 	public static void main(String[] args)
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
 		String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
