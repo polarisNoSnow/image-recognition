@@ -73,7 +73,7 @@ public class ReadColorTest {
 	 * @return
 	 * @throws AWTException
 	 */
-	public int getScreenPixel(int x, int y) throws AWTException { // 函数返回值为颜色的RGB值。
+	private int getScreenPixel(int x, int y) throws AWTException { // 函数返回值为颜色的RGB值。
 		Robot rb = null; // java.awt.image包中的类，可以用来抓取屏幕，即截屏。
 		rb = new Robot();
 		Toolkit tk = Toolkit.getDefaultToolkit(); // 获取缺省工具包

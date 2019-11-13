@@ -6,6 +6,8 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameRecorder;
 
+import com.polaris.image.util.GeneralContants;
+
 /**
  * 参考：https://blog.csdn.net/eguid_1/article/details/52680802
  * @author 北辰不落雪 
@@ -16,9 +18,9 @@ public class ImageReceiver {
 	/**
 	 * 按帧录制视频
 	 * 
-	 * @param inputFile-该地址可以是网络直播/录播地址，也可以是远程/本地文件路径
-	 * @param outputFile
-	 *            -该地址只能是文件地址，如果使用该方法推送流媒体服务器会报错，原因是没有设置编码格式
+	 * @param inputFile 该地址可以是网络直播/录播地址，也可以是远程/本地文件路径
+	 * @param outputFile 该地址只能是文件地址，如果使用该方法推送流媒体服务器会报错，原因是没有设置编码格式
+	 * @param audioChannel 是否录制音频（0:不录制/1:录制）
 	 * @throws FrameGrabber.Exception
 	 * @throws FrameRecorder.Exception
 	 * @throws org.bytedeco.javacv.FrameRecorder.Exception
@@ -57,8 +59,7 @@ public class ImageReceiver {
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
  
 		 String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		 // Decodes-encodes
-		 String outputFile = "C:\\Users\\tyb\\Desktop\\recorde.mp4";
+		 String outputFile =  GeneralContants.DESTOP_PATH + "ImageReceiver.mp4";
 		 try {
 			frameRecord(inputFile, outputFile,1);
 		} catch (Exception e) {
