@@ -20,7 +20,9 @@ import javax.imageio.ImageIO;
  * @Description 二值化、灰度化工具类
  */
 public class ImageUtil {
-
+	// 字符串由复杂到简单
+	private static final String BASE = "@#&$%*o!;.";
+			
 	public static void main(String[] args) throws Exception {
 		ImageUtil demo = new ImageUtil();
 		demo.setpName("caton.jpg");
@@ -36,6 +38,10 @@ public class ImageUtil {
 	public ImageUtil(String pPath, String pName) {
 		this.pPath = pPath;
 		this.pName = pName;
+	}
+	
+	public static ImageUtil createFactory() {
+		return new ImageUtil();
 	}
 
 	private String pPath;
@@ -129,8 +135,6 @@ public class ImageUtil {
 	 *            文件路径
 	 */
 	public void createAsciiPic() throws Exception {
-		// 字符串由复杂到简单
-		String base = "@#&$%*o!;.";
 		String outTxt = CommonUtil.getPrefix(this.getpName()) + ".txt";
 		String outPhoto = CommonUtil.getPrefix(this.getpName()) + "_ascii.jpeg";
 		BufferedWriter bw = null;
@@ -155,8 +159,8 @@ public class ImageUtil {
 					// 获取灰度值（0-255）
 					float gray = GrayUtil.gray16(r, g, b);
 					// 对应的字符（灰度值越小，颜色越黑也就是使用复杂的字符）
-					int index = Math.round(gray * (base.length() + 1) / 255);
-					String indexValue = index >= base.length() ? " " : String.valueOf(base.charAt(index));
+					int index = Math.round(gray * (BASE.length() + 1) / 255);
+					String indexValue = index >= BASE.length() ? " " : String.valueOf(BASE.charAt(index));
 					// 输出到文本
 					bw.write(indexValue);
 					// 输出到图片
@@ -200,6 +204,33 @@ public class ImageUtil {
 		g.setColor(Color.BLACK); // 设置前景色
 		g.setFont(new Font("微软雅黑", Font.PLAIN, size)); // 设置字体
 		return g;
+	}
+
+	/**
+	 * 符号化
+	 * @param bufferedImage 输入源图片
+	 * @return 符号化后的bufferedImage
+	 */
+	public static BufferedImage symbolization(BufferedImage image) {
+		int w = image.getWidth();
+		int h = image.getHeight();
+		//新建新图像
+		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+		Graphics graphics = createGraphics(newImage, w, h, 3);
+		for (int y = 0; y < image.getHeight(); y += 2) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				int pixel = image.getRGB(x, y); // 获取RGB值
+				int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
+				// 获取灰度值（0-255）
+				float gray = GrayUtil.publicMothod(r, g, b);
+				// 对应的字符（灰度值越小，颜色越黑也就是使用复杂的字符）
+				int index = Math.round(gray * (BASE.length() + 1) / 255);
+				String indexValue = index >= BASE.length() ? " " : String.valueOf(BASE.charAt(index));
+				// 输出到图片
+				graphics.drawString(indexValue, x, y);
+			}
+		}
+		return newImage;
 	}
 
 }
