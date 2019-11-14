@@ -1,12 +1,16 @@
 package com.polaris.image.core;
 
+import java.awt.image.BufferedImage;
+
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameRecorder;
+import org.bytedeco.javacv.Java2DFrameUtils;
 
 import com.polaris.image.util.GeneralContants;
+import com.polaris.image.util.ImageUtil;
 
 /**
  * 参考：https://blog.csdn.net/eguid_1/article/details/52680802
@@ -33,19 +37,28 @@ public class ImageReceiver {
 		FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputFile);
 		grabber.setOption("rtsp_transport", "tcp"); //默认UDP 会丢包
 		// 流媒体输出地址，分辨率（长，高），是否录制音频（0:不录制/1:录制）
-		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputFile, 1280, 720, audioChannel);
+		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputFile, 574, 850, audioChannel);
 		// 开始取视频源
 		recordByFrame(grabber, recorder, isStart);
 	}
 	
 	private static void recordByFrame(FFmpegFrameGrabber grabber, FFmpegFrameRecorder recorder, Boolean status)
 			throws Exception, org.bytedeco.javacv.FrameRecorder.Exception {
-		try {//建议在线程中使用该方法
+		try {
+			//建议在线程中使用该方法
 			grabber.start();
 			recorder.start();
 			Frame frame = null;
-			while (status&& (frame = grabber.grabFrame()) != null) {
-				recorder.record(frame);
+			while (status&& (frame = grabber.grab()) != null) {
+				BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(frame);
+				//frame中会存在空image
+				if( bufferedImage == null) {
+					recorder.record(frame);
+					continue;
+				}
+				//TODO 此处转换存在问题
+				bufferedImage = ImageUtil.symbolization(bufferedImage);
+				recorder.record(Java2DFrameUtils.toFrame(bufferedImage));
 			}
 			recorder.stop();
 			grabber.stop();
@@ -59,7 +72,8 @@ public class ImageReceiver {
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
  
 		 String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		 String outputFile =  GeneralContants.DESTOP_PATH + "ImageReceiver.mp4";
+		inputFile=  GeneralContants.DESTOP_PATH + "1.mp4";
+		String outputFile =  GeneralContants.DESTOP_PATH + "ImageReceiver.mp4";
 		 try {
 			frameRecord(inputFile, outputFile,1);
 		} catch (Exception e) {
