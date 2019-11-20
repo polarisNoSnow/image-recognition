@@ -8,7 +8,7 @@ package com.polaris.image.util;
 public class CommonUtil {
 
 	/**
-	 * 获取文件前缀
+	 * 获取路径
 	 * @param filename
 	 * @return
 	 */

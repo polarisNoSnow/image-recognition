@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.RealSense.frame;
 import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_objdetect;
@@ -14,6 +15,7 @@ import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameGrabber.Exception;
 
 import com.polaris.image.util.GeneralContants;
+import com.polaris.image.util.ImageUtil;
 
 import org.bytedeco.javacv.FrameRecorder;
 import org.bytedeco.javacv.Java2DFrameUtils;
@@ -105,14 +107,26 @@ public class ImageRecognition {
 		CanvasFrame frame = new CanvasFrame("视频录制", CanvasFrame.getDefaultGamma() / grabber.getGamma());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setAlwaysOnTop(true);
+		CanvasFrame frame2 = new CanvasFrame("视频录制2", CanvasFrame.getDefaultGamma() / grabber.getGamma());
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame2.setAlwaysOnTop(true);
+		
 		Frame rotatedFrame=converter.convert(grabbedImage);//不知道为什么这里不做转换就不能推到rtmp
 		while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
 			//将IplImage转化为BufferedImage，然后做相关处理
 			//BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(grabbedImage);
 			//rotatedFrame = Java2DFrameUtils.toFrame(bufferedImage);
+			IplImage grabbedImage2 = grabbedImage;
+			BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(grabbedImage);
+			// frame中会存在空image，存在声音帧等
+			if (bufferedImage != null) {
+				BufferedImage newImage = ImageUtil.symbolization(bufferedImage);
+				grabbedImage = Java2DFrameUtils.toIplImage(newImage);
+			}
 			
 			rotatedFrame = converter.convert(grabbedImage);
 			frame.showImage(rotatedFrame);
+			frame2.showImage(converter.convert(grabbedImage2));
 			if (startTime == 0) {
 				startTime = System.currentTimeMillis();
 			}
@@ -122,6 +136,7 @@ public class ImageRecognition {
 			Thread.sleep(40);
 		}
 		frame.dispose();
+		frame2.dispose();
 		recorder.stop();
 		recorder.release();
 		grabber.stop();

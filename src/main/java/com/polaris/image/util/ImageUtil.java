@@ -3,6 +3,10 @@ package com.polaris.image.util;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,15 +25,19 @@ import javax.imageio.ImageIO;
  */
 public class ImageUtil {
 	// 字符串由复杂到简单
-	private static final String BASE = "@#&$%*o!;.";
+	private static final String BASE = "@#&$%*o!;. ";
+	//private static final String BASE = "@#&$%*o!;.";
 			
 	public static void main(String[] args) throws Exception {
 		ImageUtil demo = new ImageUtil();
-		demo.setpName("caton.jpg");
+		demo.setpName("2.png");
 		demo.setpPath(GeneralContants.DESTOP_PATH);
 		// demo.binaryImage();
 		// demo.grayImage();
 		demo.createAsciiPic();
+		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH + "2.png")); 
+		BufferedImage bufferedImage = symbolization(image);
+		ImageIO.write(bufferedImage, CommonUtil.getSuffix("2.png"), new FileOutputStream(GeneralContants.DESTOP_PATH + "2_符号化.png"));
 	}
 
 	public ImageUtil() {
@@ -212,17 +220,21 @@ public class ImageUtil {
 	 * @return 符号化后的bufferedImage
 	 */
 	public static BufferedImage symbolization(BufferedImage image) {
+		//每次跨越行数，可自行调节，受视频清晰度及视频里面物体远近的影响
+		//越小处理速度越慢、但展示效果越靠近原图
+		int discardNum = 7;
 		int w = image.getWidth();
 		int h = image.getHeight();
-		//新建新图像
-		BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		Graphics graphics = createGraphics(newImage, w, h, 3);
-		for (int y = 0; y < image.getHeight(); y += 2) {
-			for (int x = 0; x < image.getWidth(); x++) {
+		//新建图像
+		BufferedImage newImage =  new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+		//字体大小为1.5倍跨越行数，符号化展示效果比较好
+		Graphics graphics = createGraphics(newImage, w, h, discardNum+(discardNum>>1));
+		for (int y = 0; y < image.getHeight(); y += discardNum) {
+			for (int x = 0; x < image.getWidth(); x += discardNum) {
 				int pixel = image.getRGB(x, y); // 获取RGB值
 				int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
 				// 获取灰度值（0-255）
-				float gray = GrayUtil.publicMothod(r, g, b);
+				float gray = GrayUtil.grayPS(r, g, b);
 				// 对应的字符（灰度值越小，颜色越黑也就是使用复杂的字符）
 				int index = Math.round(gray * (BASE.length() + 1) / 255);
 				String indexValue = index >= BASE.length() ? " " : String.valueOf(BASE.charAt(index));
@@ -232,5 +244,4 @@ public class ImageUtil {
 		}
 		return newImage;
 	}
-
 }
