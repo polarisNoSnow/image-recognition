@@ -13,6 +13,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.ShutdownChannelGroupException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -24,20 +29,43 @@ import javax.imageio.ImageIO;
  * @Description 二值化、灰度化工具类
  */
 public class ImageUtil {
+	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 20, 10, TimeUnit.SECONDS,
+			new LinkedBlockingQueue<Runnable>());
 	// 字符串由复杂到简单
 	private static final String BASE = "@#&$%*o!;. ";
 	//private static final String BASE = "@#&$%*o!;.";
 			
 	public static void main(String[] args) throws Exception {
 		ImageUtil demo = new ImageUtil();
-		demo.setpName("2.png");
+		demo.setpName("3.bmp");
 		demo.setpPath(GeneralContants.DESTOP_PATH);
 		// demo.binaryImage();
 		// demo.grayImage();
-		demo.createAsciiPic();
-		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH + "2.png")); 
-		BufferedImage bufferedImage = symbolization(image);
-		ImageIO.write(bufferedImage, CommonUtil.getSuffix("2.png"), new FileOutputStream(GeneralContants.DESTOP_PATH + "2_符号化.png"));
+		//demo.createAsciiPic();
+		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH + demo.getpName()));
+		int a = 0,b = 0;
+		for (int i = 0; i < 10; i++) {
+			long startTime = System.currentTimeMillis();
+			BufferedImage bufferedImage = ImageUtil.symbolization(image);
+			long midTime = System.currentTimeMillis();
+			BufferedImage bufferedImage_ = demo.hiperSymbolization(image);
+			long endTime = System.currentTimeMillis();
+			double first = (double)(midTime-startTime)/1000;
+			double second = (double)(endTime-midTime)/1000;
+			System.out.println(first+":"+second);
+			if(second < first) {
+				b++;
+			}else {
+				a++;
+			}
+			if(i == 0) {
+				ImageIO.write(bufferedImage_, CommonUtil.getSuffix(demo.getpName()), 
+						new FileOutputStream(GeneralContants.DESTOP_PATH + CommonUtil.getPrefix(demo.getpName())+"_符号化."+CommonUtil.getSuffix(demo.getpName())));
+			
+			}
+		}
+		System.err.println(a+":"+b);
+		System.exit(0);
 	}
 
 	public ImageUtil() {
@@ -222,7 +250,7 @@ public class ImageUtil {
 	public static BufferedImage symbolization(BufferedImage image) {
 		//每次跨越行数，可自行调节，受视频清晰度及视频里面物体远近的影响
 		//越小处理速度越慢、但展示效果越靠近原图
-		int discardNum = 7;
+		int discardNum = 1;
 		int w = image.getWidth();
 		int h = image.getHeight();
 		//新建图像
@@ -243,5 +271,69 @@ public class ImageUtil {
 			}
 		}
 		return newImage;
+	}
+	
+	/**
+	 * 多线程符号化，在高质量图片下效果不是很好，反而因为上下文切换频繁而增加耗时
+	 * @param bufferedImage 输入源图片
+	 * @return 符号化后的bufferedImage
+	 */
+	public  BufferedImage hiperSymbolization(final BufferedImage image) {
+		//每次跨越行数，可自行调节，受视频清晰度及视频里面物体远近的影响
+		//越小处理速度越慢、但展示效果越靠近原图
+		int discardNum = 1;
+		int w = image.getWidth();
+		int h = image.getHeight();
+		//新建图像
+		BufferedImage newImage =  new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+		//字体大小为1.5倍跨越行数，符号化展示效果比较好
+		final Graphics graphics = createGraphics(newImage, w, h, discardNum+(discardNum>>1));
+		CountDownLatch countDownLatch = new CountDownLatch(w*h);
+		for (int y = 0; y < image.getHeight(); y += discardNum) {
+			for (int x = 0; x < image.getWidth(); x += discardNum) {
+				executor.execute(new threadDrawString(x, y) {
+					@Override
+					public void run() {
+						try {
+							//System.out.println(x+":"+y);
+							int pixel = image.getRGB(x, y); // 获取RGB值
+							int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
+							// 获取灰度值（0-255）
+							float gray = GrayUtil.grayPS(r, g, b);
+							// 对应的字符（灰度值越小，颜色越黑也就是使用复杂的字符）
+							int index = Math.round(gray * (BASE.length() + 1) / 255);
+							String indexValue = index >= BASE.length() ? " " : String.valueOf(BASE.charAt(index));
+							// 输出到图片
+							graphics.drawString(indexValue, x, y);
+						}catch (Exception e) {
+							e.printStackTrace();
+						}finally {
+							countDownLatch.countDown();
+						}
+					}
+				});
+				
+			}
+		}
+		try {
+			countDownLatch.await();
+			System.out.println("运行完成");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return newImage;
+	}
+	
+	class threadDrawString implements Runnable{
+		protected int x;
+		protected int y;
+		public threadDrawString(final int x,final int y) {
+			this.x = x;
+			this.y = y;
+		}
+		@Override
+		public void run() {
+		}
 	}
 }
