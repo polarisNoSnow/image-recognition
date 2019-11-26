@@ -31,24 +31,19 @@ import javax.imageio.ImageIO;
 public class ImageUtil {
 	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 20, 10, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<Runnable>());
+	
 	// 字符串由复杂到简单
 	private static final String BASE = "@#&$%*o!;. ";
-	//private static final String BASE = "@#&$%*o!;.";
 			
 	public static void main(String[] args) throws Exception {
-		ImageUtil demo = new ImageUtil();
-		demo.setpName("3.bmp");
-		demo.setpPath(GeneralContants.DESTOP_PATH);
-		// demo.binaryImage();
-		// demo.grayImage();
-		//demo.createAsciiPic();
-		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH + demo.getpName()));
+		String fileName = "1.png";
+		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH +fileName));
 		int a = 0,b = 0;
 		for (int i = 0; i < 10; i++) {
 			long startTime = System.currentTimeMillis();
-			BufferedImage bufferedImage = ImageUtil.symbolization(image);
+			ImageUtil.symbolization(image);
 			long midTime = System.currentTimeMillis();
-			BufferedImage bufferedImage_ = demo.hiperSymbolization(image);
+			BufferedImage bufferedImage_ = ImageUtil.hiperSymbolization(image);
 			long endTime = System.currentTimeMillis();
 			double first = (double)(midTime-startTime)/1000;
 			double second = (double)(endTime-midTime)/1000;
@@ -59,130 +54,86 @@ public class ImageUtil {
 				a++;
 			}
 			if(i == 0) {
-				ImageIO.write(bufferedImage_, CommonUtil.getSuffix(demo.getpName()), 
-						new FileOutputStream(GeneralContants.DESTOP_PATH + CommonUtil.getPrefix(demo.getpName())+"_符号化."+CommonUtil.getSuffix(demo.getpName())));
-			
+				ImageIO.write(bufferedImage_, CommonUtil.getSuffix(fileName), 
+						new FileOutputStream(GeneralContants.DESTOP_PATH + CommonUtil.getPrefix(fileName)+"_符号化."+CommonUtil.getSuffix(fileName)));
 			}
 		}
 		System.err.println(a+":"+b);
 		System.exit(0);
 	}
 
-	public ImageUtil() {
-	}
-
-	public ImageUtil(String pPath, String pName) {
-		this.pPath = pPath;
-		this.pName = pName;
-	}
-	
-	public static ImageUtil createFactory() {
-		return new ImageUtil();
-	}
-
-	private String pPath;
-	private String pName;
-
-	public String getpPath() {
-		return pPath;
-	}
-
-	public void setpPath(String pPath) {
-		this.pPath = pPath + File.separator;
-	}
-
-	public String getpName() {
-		return pName;
-	}
-
-	public void setpName(String pName) {
-		this.pName = pName;
+	/**
+	 * 图片二值化
+	 * @param origUrl 源图片地址
+	 * @param destUrl 目标地址
+	 * @throws Exception
+	 */
+	public static void binaryImage(String origUrl,String destUrl) throws Exception {
+		BufferedImage image =  changeImage(origUrl,BufferedImage.TYPE_BYTE_BINARY);
+		if(CommonUtil.isBlank(destUrl)) {
+			destUrl =  CommonUtil.getPrefix(origUrl)+"_二值化."+CommonUtil.getSuffix(origUrl);
+		}
+		ImageIO.write(image, CommonUtil.getSuffix(origUrl), new File(destUrl));
+		System.out.println("二值化完成：" + destUrl);
 	}
 
 	/**
-	 * 获取图片地址
-	 * 
-	 * @return
+	 * 图片灰度化
+	 * @param origUrl 源地址
+	 * @param destUrl 目标地址
 	 * @throws Exception
 	 */
-	private String getPhotoUrl() throws Exception {
-		if (this.getpPath() == null || this.getpPath().length() <= 0) {
-			this.setpPath(GeneralContants.DESTOP_PATH);
+	public static void grayImage(String origUrl,String destUrl) throws Exception {
+		BufferedImage image = changeImage(origUrl,BufferedImage.TYPE_BYTE_GRAY);
+		if(CommonUtil.isBlank(destUrl)) {
+			destUrl =  CommonUtil.getPrefix(origUrl)+"_灰度化."+CommonUtil.getSuffix(origUrl);
 		}
-		if (this.getpName() == null || this.getpName().length() <= 0) {
-			throw new Exception("photo name is not null");
-		}
-		return this.getpPath() + this.getpName();
+		ImageIO.write(image, CommonUtil.getSuffix(origUrl), new File(destUrl));
+		System.out.println("灰度化完成：" + destUrl);
 	}
 
 	/**
-	 * 二值化
-	 * 
-	 * @throws Exception
+	 * 转换图片的类型
+	 * @param origUrl 图片源地址
+	 * @param imageType 转换的类型
+	 * @return BufferedImage 
+	 * @throws IOException
 	 */
-	public void binaryImage() throws Exception {
-		File file = new File(getPhotoUrl());
+	private static BufferedImage changeImage(String origUrl, int imageType) throws IOException {
+		File file = new File(origUrl);
 		BufferedImage image = ImageIO.read(file);
-
 		int width = image.getWidth();
 		int height = image.getHeight();
-
-		BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);// 重点，技巧在这个参数BufferedImage.TYPE_BYTE_BINARY
+		BufferedImage grayImage = new BufferedImage(width, height,imageType);
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				int rgb = image.getRGB(i, j);
 				grayImage.setRGB(i, j, rgb);
 			}
 		}
-		String outPath = this.getpPath() + "二值化_" + this.getpName();
-		File newFile = new File(outPath);
-		ImageIO.write(grayImage, CommonUtil.getSuffix(this.getpName()), newFile);
-		System.out.println("二值化完成：" + outPath);
+		return grayImage;
 	}
 
 	/**
-	 * 灰度化
-	 * 
+	 * 将图片符号化
+	 * 1.图片输出
+	 * 2.文本输出
+	 * @param origUrl
 	 * @throws Exception
 	 */
-	public void grayImage() throws Exception {
-		File file = new File(getPhotoUrl());
-		BufferedImage image = ImageIO.read(file);
-
-		int width = image.getWidth();
-		int height = image.getHeight();
-		BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);// 重点，技巧在这个参数BufferedImage.TYPE_BYTE_GRAY
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				int rgb = image.getRGB(i, j);
-				grayImage.setRGB(i, j, rgb);
-			}
-		}
-		String outPath = this.getpPath() + "灰度化_" + this.getpName();
-		File newFile = new File(outPath);
-		ImageIO.write(grayImage, CommonUtil.getSuffix(this.getpName()), newFile);
-		System.out.println("灰度化完成：" + outPath);
-	}
-
-	/**
-	 * 图片符号化输出
-	 * 
-	 * @param path
-	 *            文件路径
-	 */
-	public void createAsciiPic() throws Exception {
-		String outTxt = CommonUtil.getPrefix(this.getpName()) + ".txt";
-		String outPhoto = CommonUtil.getPrefix(this.getpName()) + "_ascii.jpeg";
+	public static void createAsciiPic(String origUrl) throws Exception {
+		String outTxt = CommonUtil.getPrefix(origUrl) + ".txt";
+		String outPhoto = CommonUtil.getPrefix(origUrl) + "_符号化."+CommonUtil.getSuffix(origUrl);
 		BufferedWriter bw = null;
 		Graphics graphics = null;
 		try {
-			File file = new File(this.getpPath() + outTxt);
-			if (!file.exists()) {
-				file.createNewFile();
+			File textFile = new File(outTxt);
+			if (!textFile.exists()) {
+				textFile.createNewFile();
 			}
-			FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+			FileWriter fileWriter = new FileWriter(textFile.getAbsoluteFile());
 			bw = new BufferedWriter(fileWriter);
-			final BufferedImage image = ImageIO.read(new File(getPhotoUrl()));
+			final BufferedImage image = ImageIO.read(new File(origUrl));
 			int w = image.getWidth();
 			int h = image.getHeight();
 			// 获取图像上下文
@@ -204,10 +155,10 @@ public class ImageUtil {
 				}
 				bw.newLine();
 			}
-			String outPath = this.getpPath() + outPhoto;
-			FileOutputStream out = new FileOutputStream(outPath);// 输出图片的地址
-			ImageIO.write(bufferedImage, CommonUtil.getSuffix(outPath), out);
-			System.out.println("输出完毕");
+			System.out.println("文件输出完毕");
+			FileOutputStream out = new FileOutputStream(outPhoto);// 输出图片的地址
+			ImageIO.write(bufferedImage, CommonUtil.getSuffix(outPhoto), out);
+			System.out.println("图片输出完毕");
 		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -250,15 +201,15 @@ public class ImageUtil {
 	public static BufferedImage symbolization(BufferedImage image) {
 		//每次跨越行数，可自行调节，受视频清晰度及视频里面物体远近的影响
 		//越小处理速度越慢、但展示效果越靠近原图
-		int discardNum = 1;
+		int discardNum = 7;
 		int w = image.getWidth();
 		int h = image.getHeight();
 		//新建图像
 		BufferedImage newImage =  new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
 		//字体大小为1.5倍跨越行数，符号化展示效果比较好
 		Graphics graphics = createGraphics(newImage, w, h, discardNum+(discardNum>>1));
-		for (int y = 0; y < image.getHeight(); y += discardNum) {
-			for (int x = 0; x < image.getWidth(); x += discardNum) {
+		for (int y = 0; y < w; y += discardNum) {
+			for (int x = 0; x < h; x += discardNum) {
 				int pixel = image.getRGB(x, y); // 获取RGB值
 				int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
 				// 获取灰度值（0-255）
@@ -274,28 +225,32 @@ public class ImageUtil {
 	}
 	
 	/**
-	 * 多线程符号化，在高质量图片下效果不是很好，反而因为上下文切换频繁而增加耗时
+	 * 多线程符号化，在高质量图片+每个像素都打印的前提下效果不是很好，因为上下文切换频繁会增加耗时
 	 * @param bufferedImage 输入源图片
 	 * @return 符号化后的bufferedImage
 	 */
-	public  BufferedImage hiperSymbolization(final BufferedImage image) {
-		//每次跨越行数，可自行调节，受视频清晰度及视频里面物体远近的影响
-		//越小处理速度越慢、但展示效果越靠近原图
-		int discardNum = 1;
+	public  static BufferedImage hiperSymbolization(final BufferedImage image) {
+		//跨越的像素，可自行调节，越小处理速度越慢、但展示效果越靠近原图（图像效果也会受物体远近影响）
+		//TODO 等一个具体算法（可以根据分辨率归纳出，如按分辨率的百分比）
+		int discardNumY = 7;
+		int discardNumX = 7;
+		//均值
+		int discardNum = (discardNumX+discardNumY)/2;
+		
 		int w = image.getWidth();
 		int h = image.getHeight();
 		//新建图像
 		BufferedImage newImage =  new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
-		//字体大小为1.5倍跨越行数，符号化展示效果比较好
+		//字体大小为1.5倍跨越行数，符号化展示效果比较好，,可自行调节
 		final Graphics graphics = createGraphics(newImage, w, h, discardNum+(discardNum>>1));
-		CountDownLatch countDownLatch = new CountDownLatch(w*h);
-		for (int y = 0; y < image.getHeight(); y += discardNum) {
-			for (int x = 0; x < image.getWidth(); x += discardNum) {
+		//设置CountDownLatch次数为循环次数，h、w很小的情况暂不考虑
+		CountDownLatch countDownLatch = new CountDownLatch((h/discardNumY)*(w/discardNumX));
+		for (int y = 0; y < h; y += discardNumY) {
+			for (int x = 0; x < w; x += discardNumX) {
 				executor.execute(new threadDrawString(x, y) {
 					@Override
 					public void run() {
 						try {
-							//System.out.println(x+":"+y);
 							int pixel = image.getRGB(x, y); // 获取RGB值
 							int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
 							// 获取灰度值（0-255）
@@ -317,15 +272,14 @@ public class ImageUtil {
 		}
 		try {
 			countDownLatch.await();
-			System.out.println("运行完成");
+			System.out.println("多线程符号化运行完成");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
 		return newImage;
 	}
 	
-	class threadDrawString implements Runnable{
+	static class threadDrawString implements Runnable{
 		protected int x;
 		protected int y;
 		public threadDrawString(final int x,final int y) {

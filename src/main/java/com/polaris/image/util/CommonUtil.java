@@ -9,24 +9,24 @@ public class CommonUtil {
 
 	/**
 	 * 获取路径
-	 * @param filename
+	 * @param filePath
 	 * @return
 	 */
-	public static String getPrefix(String filename) {
-		if(isNotBlank(filename)) {
-			return filename.substring(0,filename.indexOf("."));
+	public static String getPrefix(String filePath) {
+		if(isNotBlank(filePath)) {
+			return filePath.substring(0,filePath.lastIndexOf("."));
 		}
 		return null;
 	}
 	
 	/**
 	 * 获取文件后缀
-	 * @param filename
+	 * @param filePath
 	 * @return
 	 */
-	public static String getSuffix(String filename) {
-		if(isNotBlank(filename)) {
-			return filename.substring(filename.lastIndexOf(".")+1, filename.length());
+	public static String getSuffix(String filePath) {
+		if(isNotBlank(filePath)) {
+			return filePath.substring(filePath.lastIndexOf(".")+1, filePath.length());
 		}
 		return null;
 	}

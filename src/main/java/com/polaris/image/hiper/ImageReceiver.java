@@ -1,6 +1,8 @@
 package com.polaris.image.hiper;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -37,6 +39,35 @@ public class ImageReceiver {
 	private int getPercent() {
 		// 划一百等分
 		return frameNum / 100;
+	}
+	
+	//消费队列
+	private Map<Integer, Object> mq = new HashMap<Integer, Object>();
+	
+	/**
+	 * 生产者
+	 * @param key
+	 * @param data
+	 */
+	public void consumer(Integer key,Object data) {
+		mq.put(key, data);
+	}
+	
+	/**
+	 * 消费者
+	 * @throws org.bytedeco.javacv.FrameRecorder.Exception 
+	 */
+	public void producer() throws org.bytedeco.javacv.FrameRecorder.Exception {
+		Frame frame = null;
+		for (int i = 0; i < mq.size(); i++) {
+			for(;;) {
+				if(mq.get(i) != null) {
+					 frame = (Frame) mq.get(i);
+					 recorder.record(frame);
+					 break;
+				}
+			}
+		}
 	}
 	/**
 	 * 按帧录制视频
@@ -76,8 +107,8 @@ public class ImageReceiver {
 	 * 1.录制和符号化比较耗时
 	 * 2.录制器record需要按顺序
 	 * 目前方案：
-	 * 1.视频帧符号化用多线程跑
-	 * 2.按顺序录制音视频帧
+	 * 1.视频帧符号化用多线程跑（完成）
+	 * 2.音视频帧采用多线程生产按顺序消费的方式（可能存在卡帧的情况）
 	 * 
 	 * @param grabber
 	 * @param recorder
@@ -110,7 +141,7 @@ public class ImageReceiver {
 				}else {
 					/**
 					 * 	存在的问题：
-					 * 1.符号化时新建的BufferedImage采用RGB方式时候alpha有问题，会被当成视频帧的前景色（猜测是24位中的高8位），目前采用灰度化解决
+					 * 1.新建的BufferedImage采用RGB方式时候alpha有问题，会被当成视频帧的前景色（猜测是24位中的高8位），目前采用灰度化解决
 					 */
 					BufferedImage newImage = ImageUtil.symbolization(bufferedImage);
 					recorder.record(Java2DFrameUtils.toFrame(newImage));
@@ -118,9 +149,6 @@ public class ImageReceiver {
 						System.out.printf("已处理：%.2f%%，剩余：%d帧\n", (double) i / frameNum * 100, frameNum - i);
 					}
 				}
-				
-				
-				executor.execute(new ThreadRecorder(frame_));
 			}
 			try {
                 latch.await();
