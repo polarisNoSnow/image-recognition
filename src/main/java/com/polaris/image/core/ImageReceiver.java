@@ -87,8 +87,8 @@ public class ImageReceiver {
 				 * 存在的问题：
 				 * 1.符号化时新建的BufferedImage采用RGB方式时候alpha有问题，会被当成视频帧的前景色（猜测是24位中的高8位），目前采用灰度化解决
 				 */
-				BufferedImage newImage = ImageUtil.symbolization(bufferedImage);
-				recorder.record(Java2DFrameUtils.toFrame(newImage));
+				BufferedImage newImage = ImageUtil.hiperSymbolization(bufferedImage);
+				//recorder.record(Java2DFrameUtils.toFrame(newImage));
 				if(i%y==0) {
 					System.out.printf("已处理：%.2f%%，剩余：%d帧\n",(double)i/frameNum*100,frameNum-i);
 					//ImageIO.write(newImage, "png", new FileOutputStream(GeneralContants.DESTOP_PATH + "\\video\\"+i+".png"));
@@ -108,10 +108,11 @@ public class ImageReceiver {
 	public static void main(String[] args)
 			throws FrameRecorder.Exception, FrameGrabber.Exception, InterruptedException {
 		String inputFile = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
-		inputFile = GeneralContants.DESTOP_PATH + "dance2.mp4";
+		inputFile = GeneralContants.DESTOP_PATH + "1.mp4";
 		String outputFile = CommonUtil.getPrefix(inputFile)+ "_符号化."+CommonUtil.getSuffix(inputFile);
 		try {
 			frameRecord(inputFile, outputFile, 1);
+			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

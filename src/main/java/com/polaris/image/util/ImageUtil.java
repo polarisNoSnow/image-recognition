@@ -208,8 +208,8 @@ public class ImageUtil {
 		BufferedImage newImage =  new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
 		//字体大小为1.5倍跨越行数，符号化展示效果比较好
 		Graphics graphics = createGraphics(newImage, w, h, discardNum+(discardNum>>1));
-		for (int y = 0; y < w; y += discardNum) {
-			for (int x = 0; x < h; x += discardNum) {
+		for (int y = 0; y < h; y += discardNum) {
+			for (int x = 0; x < w; x += discardNum) {
 				int pixel = image.getRGB(x, y); // 获取RGB值
 				int r = (pixel & 0xff0000) >> 16, g = (pixel & 0xff00) >> 8, b = pixel & 0xff;
 				// 获取灰度值（0-255）
@@ -272,7 +272,7 @@ public class ImageUtil {
 		}
 		try {
 			countDownLatch.await();
-			System.out.println("多线程符号化运行完成");
+			//System.out.println("多线程符号化运行完成");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
