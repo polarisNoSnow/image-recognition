@@ -19,6 +19,11 @@
             <artifactId>opencv-platform</artifactId>
             <version>3.4.1-1.4.1</version>
         </dependency>
+        <dependency>
+            <artifactId>commons-codec</artifactId>
+            <groupId>commons-codec</groupId>
+            <version>1.11</version>
+        </dependency>
 	</dependencies>
 	<build>
         <plugins>
