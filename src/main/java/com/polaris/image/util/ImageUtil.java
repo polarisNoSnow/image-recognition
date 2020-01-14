@@ -322,7 +322,7 @@ public class ImageUtil {
 		// 均衡化直方图(提高对比度)
 		//equalizeHist(grayscr, grayscr);
 		RectVector faces = new RectVector();
-		CascadeClassifier cascade = new CascadeClassifier("F:\\images\\opencv-3.4.1\\data\\lbpcascades\\lbpcascade_frontalface.xml");//初始化人脸检测器
+		CascadeClassifier cascade = new CascadeClassifier(PropertiesUtil.getInstance().getStringValue("face"));//初始化人脸检测器
 		//检测人脸，grayscr为要检测的图片，faces用来存放检测结果
 		cascade.detectMultiScale(grayscr, faces);
 		//遍历检测出来的人脸
@@ -342,6 +342,17 @@ public class ImageUtil {
 			}
 		}
 		return bufferImage;
+	}
+
+	public static void detectFace(String inputFile, String outputFile) {
+		File file = new File(inputFile);
+		try {
+			BufferedImage image = ImageIO.read(file);
+			image = detectFace(image);
+			ImageIO.write(image, CommonUtil.getSuffix(inputFile),new FileOutputStream(outputFile));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

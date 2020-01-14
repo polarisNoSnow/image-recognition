@@ -1,17 +1,27 @@
 package com.polaris.image;
 
-import com.polaris.image.core.VideoRecord;
-import com.polaris.image.util.CommonUtil;
-import com.polaris.image.util.GeneralContants;
-import com.sun.jmx.snmp.tasks.Task;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Date;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JTextField;
+
+import com.polaris.image.core.VideoRecord;
+import com.polaris.image.util.CommonUtil;
+import com.polaris.image.util.ImageUtil;
 
 public class Bootstrap {
     private int frameWidth = 350;
@@ -157,6 +167,7 @@ public class Bootstrap {
                         gotoVideoSymbolization(inputFile,outputFile,goButton,panel);
                         break;
                     case 2:
+                    	gotoPicSymbolization(inputFile,outputFile,goButton,panel);
                         break;
                     default:
                         break;
@@ -166,9 +177,38 @@ public class Bootstrap {
             }
         });
     }
+    /** 图片符号化
+    * @param inputFile
+    * @param outputFile
+    * @param goButton
+    * @param panel
+    */
+   private void gotoPicSymbolization(String inputFile, String outputFile, JButton goButton, JPanel panel){
+       if (CommonUtil.isBlank(inputFile)) {
+           JOptionPane.showMessageDialog(null, "请选择文件！", "错误 ", 0);
+           return;
+       }
+       StringBuffer sb = new StringBuffer();
+       if (CommonUtil.isBlank(outputFile)) {
+           sb = sb.append(CommonUtil.getPrefix(inputFile)).append("_");
 
-    /**
-     * 视频符号化
+       } else {
+           sb = sb.append(outputFile).append(java.io.File.separator);
+       }
+       outputFile = sb.append("符号化")
+               .append(new Date().getTime())
+               .append(".")
+               .append(CommonUtil.getSuffix(inputFile))
+               .toString();
+       try {
+           goButton.setEnabled(false);
+           ImageUtil.detectFace(inputFile, outputFile);
+       } catch (Exception ex) {
+           ex.printStackTrace();
+       }
+   }
+    
+    /** 视频符号化
      * @param inputFile
      * @param outputFile
      * @param goButton

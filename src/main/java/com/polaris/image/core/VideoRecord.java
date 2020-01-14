@@ -27,19 +27,15 @@ import com.polaris.image.util.ImageUtil;
  * @date 2019年2月12日 上午11:35:23
  * @Description 视频录制
  */
-public class VideoRecord{
+public class VideoRecord extends ProgressBar{
 
-    private double progress = 0;
     // 当前帧计数器
     private int currFrame = 0;
     // 视频帧数
     private int videoFrameNum = 1;
-    /**
-     * 获取当前进度
-     * @return
-     */
+    
     public int getProgress(){
-        progress = ((double) currFrame / videoFrameNum * 100);
+    	super.progress = ((double) currFrame / videoFrameNum * 100);
         return  Double.valueOf(new DecimalFormat("0").format(this.progress)).intValue();
     }
     /**
