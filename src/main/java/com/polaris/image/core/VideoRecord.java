@@ -16,6 +16,7 @@ import org.bytedeco.javacv.FrameRecorder;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.Java2DFrameUtils;
 
+import com.polaris.image.service.ProgressBar;
 import com.polaris.image.util.CommonUtil;
 import com.polaris.image.util.GeneralContants;
 import com.polaris.image.util.ImageUtil;
@@ -34,9 +35,10 @@ public class VideoRecord extends ProgressBar{
     // 视频帧数
     private int videoFrameNum = 1;
     
+    @Override
     public int getProgress(){
     	super.progress = ((double) currFrame / videoFrameNum * 100);
-        return  Double.valueOf(new DecimalFormat("0").format(this.progress)).intValue();
+        return  super.getProgress();
     }
     /**
      * 按帧录制视频

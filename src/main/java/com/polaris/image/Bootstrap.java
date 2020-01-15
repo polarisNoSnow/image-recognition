@@ -19,16 +19,23 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
+import com.polaris.image.core.ImageRecognition;
 import com.polaris.image.core.VideoRecord;
+import com.polaris.image.service.FaceService;
+import com.polaris.image.service.ProgressBar;
 import com.polaris.image.util.CommonUtil;
+import com.polaris.image.util.GeneralContants;
 import com.polaris.image.util.ImageUtil;
+import com.polaris.image.util.PropertiesUtil;
 
 public class Bootstrap {
     private int frameWidth = 350;
     private int frameHeight = 250;
     private double startPositionX = (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - frameWidth) / 2;
     private double startPositionY = (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - frameHeight) / 2;
-
+    JButton btnGo;
+    JPanel panel;
+    
     /**
      * {
      * 创建并显示GUI。出于线程安全的考虑，
@@ -51,7 +58,7 @@ public class Bootstrap {
          * 我们可以创建多个面板并在 JFrame 中指定位置
          * 面板中我们可以添加文本字段，按钮及其他组件。
          */
-        JPanel panel = new JPanel();
+        panel = new JPanel();
         frame.add(panel);
         panel.setBackground(Color.white);    //设置背景色
         /*
@@ -64,7 +71,11 @@ public class Bootstrap {
         // 设置窗口是否可见
         frame.setVisible(true);
     }
-
+    JButton fileInButton;
+    JTextField fileInText;
+    JButton fileOutButton;
+    JTextField fileOutText;
+    
     private void mainPlaceComponents(JPanel panel) {
         /*
          * 这边设置布局为 null
@@ -79,36 +90,33 @@ public class Bootstrap {
         JComboBox cmb = new JComboBox();    //创建JComboBox
         cmb.setBounds(130, 20, 100, 25);
         cmb.addItem("--请选择--");    //向下拉列表中添加一项
-        cmb.addItem("视频符号化");
-        cmb.addItem("图片符号化");
-        cmb.addItem("在线视频化");
+        cmb.addItem("符号化（离线）");
+        cmb.addItem("符号化（实时）");
+        cmb.addItem("人脸检测");
         panel.add(cmb);
 
         // 文件输入路径
-        JButton fileInButton = new JButton("文件路径：");
+        fileInButton = new JButton("源文件：");
         fileInButton.setBounds(10, 50, 100, 25);
         panel.add(fileInButton);
 
-        JTextField fileInText = new JTextField(20);
+        fileInText = new JTextField(20);
         fileInText.setBounds(130, 50, 165, 25);
         panel.add(fileInText);
 
         // 输出路径
-        JButton fileOutButton = new JButton("输出路径：");
+        fileOutButton = new JButton("输出路径：");
         fileOutButton.setBounds(10, 80, 100, 25);
         panel.add(fileOutButton);
 
-
-        JTextField fileOutText = new JTextField(20);
+        fileOutText = new JTextField(20);
         fileOutText.setBounds(130, 80, 165, 25);
         panel.add(fileOutText);
 
         // 创建转换按钮
-        JButton goButton = new JButton("开始转换");
-        goButton.setBounds(100, 120, 100, 25);
-        panel.add(goButton);
-
-
+        btnGo = new JButton("开始转换");
+        btnGo.setBounds(100, 120, 100, 25);
+        panel.add(btnGo);
 
         //按钮点击事件
         fileInButton.addActionListener(new ActionListener() {
@@ -146,15 +154,11 @@ public class Bootstrap {
                 }
             }
         });
-
+        
         //执行按钮
-        goButton.addActionListener(new ActionListener() {
+        btnGo.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                System.out.println("in:" + fileInText.getText());
-                System.out.println("out:" + fileOutText.getText());
-                System.out.println("selectedIndex:" + cmb.getSelectedIndex());
-
                 if (cmb.getSelectedIndex() == 0) {
                     JOptionPane.showMessageDialog(null, "请选择操作类型！", "错误 ", 0);
                     return;
@@ -164,26 +168,38 @@ public class Bootstrap {
 
                 switch(cmb.getSelectedIndex()){
                     case 1:
-                        gotoVideoSymbolization(inputFile,outputFile,goButton,panel);
+                        gotoVideoSymbolization(inputFile,outputFile,panel);
                         break;
                     case 2:
-                    	gotoPicSymbolization(inputFile,outputFile,goButton,panel);
+                    	gotoRealtimeSymbolization(outputFile,panel);
+                        break;
+                    case 3:
+                    	gotoPicDetectFace(inputFile,outputFile,panel);
                         break;
                     default:
                         break;
                 }
-
-
             }
         });
     }
-    /** 图片符号化
+    
+    private void operationFileIn(boolean flag) {
+    	if(flag) {
+    		panel.remove(fileInButton);
+        	panel.remove(fileInText);
+    	}else{
+    		panel.add(fileInButton);
+        	panel.add(fileInText);
+    	}
+    	
+    }
+    /** 图片人脸识别
     * @param inputFile
     * @param outputFile
-    * @param goButton
+    * @param btnGo
     * @param panel
     */
-   private void gotoPicSymbolization(String inputFile, String outputFile, JButton goButton, JPanel panel){
+   private void gotoPicDetectFace(String inputFile, String outputFile, JPanel panel){
        if (CommonUtil.isBlank(inputFile)) {
            JOptionPane.showMessageDialog(null, "请选择文件！", "错误 ", 0);
            return;
@@ -195,26 +211,31 @@ public class Bootstrap {
        } else {
            sb = sb.append(outputFile).append(java.io.File.separator);
        }
-       outputFile = sb.append("符号化")
+       outputFile = sb.append("人脸检测")
                .append(new Date().getTime())
                .append(".")
                .append(CommonUtil.getSuffix(inputFile))
                .toString();
+       System.out.println("输出路径："+outputFile);
        try {
-           goButton.setEnabled(false);
-           ImageUtil.detectFace(inputFile, outputFile);
+           btnGo.setEnabled(false);
+           FaceService service = new FaceService();
+           new Progress(panel, btnGo, service).start();
+           service.detectFace(inputFile, outputFile);
        } catch (Exception ex) {
            ex.printStackTrace();
-       }
+       }finally {
+    	   btnGo.setEnabled(true);
+	}
    }
     
-    /** 视频符号化
+    /** 视频符号化-离线
      * @param inputFile
      * @param outputFile
-     * @param goButton
+     * @param btnGo
      * @param panel
      */
-    private void gotoVideoSymbolization(String inputFile, String outputFile, JButton goButton, JPanel panel){
+    private void gotoVideoSymbolization(String inputFile, String outputFile, JPanel panel){
         if (CommonUtil.isBlank(inputFile)) {
             JOptionPane.showMessageDialog(null, "请选择文件！", "错误 ", 0);
             return;
@@ -232,26 +253,54 @@ public class Bootstrap {
                 .append(CommonUtil.getSuffix(inputFile))
                 .toString();
         try {
-            goButton.setEnabled(false);
+            btnGo.setEnabled(false);
             VideoRecord videoRecord = new VideoRecord();
-            new Progress(panel, goButton, videoRecord).start();
+            new Progress(panel, btnGo, videoRecord).start();
             videoRecord.frameRecord(inputFile, outputFile, 1);
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
+        }finally {
+        	 btnGo.setEnabled(true);
+		}
     }
-
+    
+    /** 视频符号化-实时
+     * @param inputFile
+     * @param outputFile
+     * @param btnGo
+     * @param panel
+     */
+    private void gotoRealtimeSymbolization( String outputFile, JPanel panel){
+        StringBuffer sb = new StringBuffer();
+        if (CommonUtil.isBlank(outputFile)) {
+            sb = sb.append(GeneralContants.DESTOP_PATH);
+        } else {
+            sb = sb.append(outputFile).append(java.io.File.separator);
+        }
+        outputFile = sb.append("符号化")
+                .append(new Date().getTime())
+                .append(".")
+                .append(CommonUtil.getSuffix("flv"))
+                .toString();
+        try {
+            btnGo.setEnabled(false);
+            ImageRecognition.recordCamera(outputFile, Double.valueOf(PropertiesUtil.getInstance().getStringValue("frameRate")));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "错误 ", 0);
+        }finally {
+        	 btnGo.setEnabled(true);
+		}
+    }
+    
     private class Progress extends Thread {
         JPanel panel;
         JButton button;
-        VideoRecord videoRecord;
-        //进度条上的数字
-        int[] progressValues = {6, 18, 27, 39, 51, 66, 81, 100};
-
-        Progress(JPanel panel, JButton button, VideoRecord videoRecord) {
+        ProgressBar progress;
+        Progress(JPanel panel, JButton button, ProgressBar progress) {
             this.panel = panel;
             this.button = button;
-            this.videoRecord = videoRecord;
+            this.progress = progress;
         }
 
         public void run() {
@@ -268,7 +317,7 @@ public class Bootstrap {
 
             int pro = 0;
             for (;;) {
-                pro = videoRecord.getProgress();
+                pro = progress.getProgress();
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
