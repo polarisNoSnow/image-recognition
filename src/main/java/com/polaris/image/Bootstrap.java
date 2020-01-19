@@ -66,7 +66,8 @@ public class Bootstrap {
         opType.setBounds(30, 20, 100, 25);
         panel.add(opType);
 
-        JComboBox cmb = new JComboBox();    //创建JComboBox
+      //创建JComboBox
+        JComboBox cmb = new JComboBox();    
         cmb.setBounds(130, 20, 100, 25);
         cmb.addItem("--请选择--");    //向下拉列表中添加一项
         cmb.addItem("视频符号化");
@@ -194,21 +195,24 @@ public class Bootstrap {
         try {
             goButton.setEnabled(false);
             VideoRecord videoRecord = new VideoRecord();
-            new Progress(panel, goButton, videoRecord).start();
-            videoRecord.frameRecord(inputFile, outputFile, 1);
+            new ProgressThread(panel, goButton, videoRecord).start();
+            videoRecord.frameRecord(inputFile, outputFile, 2);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private class Progress extends Thread {
+    /**
+     * 进度线程
+     * @author polaris
+     * @date 2019年11月30日
+     */
+    private class ProgressThread extends Thread {
         JPanel panel;
         JButton button;
         VideoRecord videoRecord;
-        //进度条上的数字
-        int[] progressValues = {6, 18, 27, 39, 51, 66, 81, 100};
 
-        Progress(JPanel panel, JButton button, VideoRecord videoRecord) {
+        ProgressThread(JPanel panel, JButton button, VideoRecord videoRecord) {
             this.panel = panel;
             this.button = button;
             this.videoRecord = videoRecord;
@@ -219,41 +223,44 @@ public class Bootstrap {
             JProgressBar progressBar = new JProgressBar();
             progressBar.setBounds(10, 160, frameWidth - 30, 25);
             progressBar.setStringPainted(true);
-            //如果不需要进度上显示“升级进行中...”，可注释此行
-            // progressBar.setString("升级进行中...");
             //进度条为确定值
             progressBar.setIndeterminate(false);
             progressBar.setValue(0);
             panel.add(progressBar);
 
-            int pro = 0;
+            int progress = 0;
             for (;;) {
-                pro = videoRecord.getProgress();
+            	progress = videoRecord.getProgress();
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                /**
-                 * 设置进度条的值
-                 * 当应用程序在事件线程中执行长时间的操作时，会阻塞正常的AWT事件处理，因此阻止了重绘操作的发生
-                 * 所以此处经过一次转换
-                 */
-                Dimension d = progressBar.getSize();
-                Rectangle rect = new Rectangle(0, 0, d.width, d.height);
-                progressBar.setValue(pro);
-                progressBar.paintImmediately(rect);
-                if (pro >= 100) {
+                setProgress(progressBar,progress);
+                
+                if (progress >= 100) {
                     break;
                 }
             }
-            //progressBar.setValue(imageReceiver.getProgress());
             progressBar.setString("转换完成！");
             button.setEnabled(true);
         }
+        
+        /**
+         * 设置进度条的值
+         * 当应用程序在事件线程中执行长时间的操作时，会阻塞正常的AWT事件处理，因此阻止了重绘操作的发生
+         * 所以此处经过一次转换
+         */
+		private void setProgress(JProgressBar progressBar, int progress) {
+            Dimension d = progressBar.getSize();
+            Rectangle rect = new Rectangle(0, 0, d.width, d.height);
+            progressBar.setValue(progress);
+            progressBar.paintImmediately(rect);
+		}
     }
 
+    
 
     public static void main(String[] args) {
         // 显示应用 GUI

@@ -1,5 +1,9 @@
 package com.polaris.image.core;
 
+import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.List;
+
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Point;
@@ -9,11 +13,14 @@ import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameUtils;
 import org.bytedeco.javacv.FrameGrabber.Exception;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 
 import com.polaris.image.util.GeneralContants;
+import com.polaris.image.util.ImageUtil;
+import com.polaris.image.util.Poistion;
 
 /**
  * 参考：https://blog.csdn.net/eguid_1/article/details/53259649
@@ -51,13 +58,13 @@ public class ImageWatermark {
         Frame frame = null;
         int index = 0;
 
-        Mat logo = opencv_imgcodecs.imread(GeneralContants.DESTOP_PATH + "wm.png");
+        Mat logo = opencv_imgcodecs.imread(GeneralContants.DESTOP_PATH + "dog2.png");
         Mat mask = opencv_imgcodecs.imread(GeneralContants.DESTOP_PATH + "wm2.png", 0);
 
         opencv_imgproc.threshold(mask, mask, 254, 255,
                 opencv_imgcodecs.IMWRITE_PNG_BILEVEL);
 
-        double alpha = 0.8;// 图像透明权重值,0-1之间
+        double alpha = 0.1;// 图像透明权重值,0-1之间
         while (cFrame.isShowing()) {
             try {
                 frame = grabber.grabFrame();
@@ -67,16 +74,30 @@ public class ImageWatermark {
             if (frame != null) {
                 // 取一帧视频（图像），并转换为Mat
                 Mat mat = converter.convertToMat(frame);
+                List<Poistion> poistions = ImageUtil.detectFaceXY(Java2DFrameUtils.toBufferedImage(frame));
+                
                 // 加文字水印，opencv_imgproc.putText（图片，水印文字，文字位置，字体，字体大小，字体颜色，字体粗度，平滑字体，是否翻转文字）
                 opencv_imgproc.putText(mat, "beta watermark by polairs", point,
                         opencv_imgproc.CV_FONT_VECTOR0, 0.8, scalar, 1, 20,
                         false);
-                // 定义感兴趣区域(位置，logo图像大小)
-                Mat ROI = mat
-                        .apply(new Rect(grabber.getImageWidth() - logo.cols() - 5, grabber.getImageHeight() - logo.rows() - 5, logo.cols(), logo.rows()));
+                Mat ROI = null;
+                for (Poistion poistion : poistions) {
+                	Point start = poistion.getStart();
+                	Point end = poistion.getEnd();
+                	 // 定义感兴趣区域(位置，logo图像大小)
+                    ROI = mat.apply(
+                    		new Rect(
+                    				start.x() , 
+                    				start.y() , 
+                    				logo.cols(),
+                    				logo.rows() 
+                    				)
+                    		);
 
-                opencv_core
-                        .addWeighted(ROI, alpha, logo, 1.0 - alpha, 0.0, ROI);
+                    opencv_core
+                            .addWeighted(ROI, alpha, logo, 1.0 - alpha, 0.0, ROI);
+				}
+                
                 // 把logo图像复制到感兴趣区域
                 // logo.copyTo(ROI, mask);
                 // 显示图像到窗口
@@ -87,8 +108,10 @@ public class ImageWatermark {
                     opencv_imgcodecs.imwrite(GeneralContants.DESTOP_PATH + "watermark.jpg", mat);
                 }
                 // 释放Mat资源
-                ROI.release();
-                ROI.close();
+                if(ROI != null) {
+                	ROI.release();
+                    ROI.close();
+                }
                 mat.release();
                 //mat.close(); //原作者此处未注释，第二次取frame的时候 会报错（）
                 Thread.sleep(40);

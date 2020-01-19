@@ -84,9 +84,9 @@ public class ImageVoice {
             System.err.println("摄像头开启失败！");
             return;
         } else if (isTrue == 1) {
-            System.err.println("摄像头开启成功！");
+            System.out.println("摄像头开启成功！");
         } else if (isTrue == 1) {
-            System.err.println("摄像头首次开启失败，重新启动成功！");
+            System.out.println("摄像头首次开启失败，重新启动成功！");
         }
 
         /**
@@ -291,7 +291,7 @@ public class ImageVoice {
             }
         }
         try {
-            if (recorder != null) {
+            if (grabber != null) {
                 grabber.stop();
             }
         } catch (org.bytedeco.javacv.FrameGrabber.Exception e) {

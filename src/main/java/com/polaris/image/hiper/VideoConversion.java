@@ -31,8 +31,8 @@ class VideoConversion {
             new LinkedBlockingQueue<Runnable>());
     // 文件输出地址
     private String outputFile;
-    // 是否录制音频（0:不录制/1:录制）
-    private int audioChannel = 1;
+    // audioChannels = 2（立体声）；1（单声道）；0（无音频）
+    private int audioChannel = 2;
     // 当前帧计数器
     private int currFrame = 0;
     // 生产者完成标记

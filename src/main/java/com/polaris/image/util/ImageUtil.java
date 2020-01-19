@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -63,13 +65,13 @@ public class ImageUtil {
 		}
 		System.err.println(a + ":" + b);
 		System.exit(0);*/
-		String fileName = "F:\\images\\people.jpg";
+		String fileName = "d:\\Desktop\\images\\郡主.png";
 		File file = new File(fileName);
 		try {
 			BufferedImage image = ImageIO.read(file);
 			image = detectFace(image);
 			ImageIO.write(image, CommonUtil.getSuffix(fileName),
-					new FileOutputStream( CommonUtil.getPrefix(fileName) + "_符号化."
+					new FileOutputStream( CommonUtil.getPrefix(fileName) + "_人脸识别."
 							+ CommonUtil.getSuffix(fileName)));
 
 		} catch (IOException e) {
@@ -313,16 +315,16 @@ public class ImageUtil {
 	}
 
 	public static BufferedImage detectFace(BufferedImage bufferImage) {
-		BufferedImage grayBufferImage = changeImage(bufferImage, BufferedImage.TYPE_BYTE_GRAY);
+		//BufferedImage grayBufferImage = changeImage(bufferImage, BufferedImage.TYPE_BYTE_GRAY);
 		Graphics graphics = bufferImage.createGraphics();
 		graphics.setColor(Color.red); // 设置前景色
 		graphics.setFont(new Font("微软雅黑", Font.PLAIN, 3)); // 设置字体
 		// 灰度化
-		Mat grayscr = Java2DFrameUtils.toMat(grayBufferImage);
+		Mat grayscr = Java2DFrameUtils.toMat(bufferImage);
 		// 均衡化直方图(提高对比度)
 		//equalizeHist(grayscr, grayscr);
 		RectVector faces = new RectVector();
-		CascadeClassifier cascade = new CascadeClassifier("F:\\images\\opencv-3.4.1\\data\\lbpcascades\\lbpcascade_frontalface.xml");//初始化人脸检测器
+		CascadeClassifier cascade = new CascadeClassifier("d:\\Desktop\\images\\data\\lbpcascade_frontalface.xml");//初始化人脸检测器
 		//检测人脸，grayscr为要检测的图片，faces用来存放检测结果
 		cascade.detectMultiScale(grayscr, faces);
 		//遍历检测出来的人脸
@@ -343,5 +345,31 @@ public class ImageUtil {
 		}
 		return bufferImage;
 	}
-
+	
+	
+	public static List<Poistion> detectFaceXY(BufferedImage bufferImage) {
+		List<Poistion> positions = new ArrayList<>();
+		//BufferedImage grayBufferImage = changeImage(bufferImage, BufferedImage.TYPE_BYTE_GRAY);
+		Graphics graphics = bufferImage.createGraphics();
+		graphics.setColor(Color.red); // 设置前景色
+		graphics.setFont(new Font("微软雅黑", Font.PLAIN, 3)); // 设置字体
+		// 灰度化
+		Mat grayscr = Java2DFrameUtils.toMat(bufferImage);
+		// 均衡化直方图(提高对比度)
+		//equalizeHist(grayscr, grayscr);
+		RectVector faces = new RectVector();
+		CascadeClassifier cascade = new CascadeClassifier("d:\\Desktop\\images\\data\\lbpcascade_frontalface.xml");//初始化人脸检测器
+		//检测人脸，grayscr为要检测的图片，faces用来存放检测结果
+		cascade.detectMultiScale(grayscr, faces);
+		//遍历检测出来的人脸
+		for (int i = 0; i < faces.size(); i++) { 
+			Rect rect = faces.get(i);
+			//左上角
+			Point leftPoint = rect.tl(); 
+			Point rightPoint = rect.br();
+			positions.add(new Poistion(leftPoint, rightPoint));
+		}
+		return positions;
+	}
+	
 }
