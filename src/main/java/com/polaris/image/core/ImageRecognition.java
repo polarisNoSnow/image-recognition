@@ -81,7 +81,6 @@ public class ImageRecognition {
             throws Exception, InterruptedException, org.bytedeco.javacv.FrameRecorder.Exception {
         Loader.load(opencv_objdetect.class);
         FrameGrabber grabber = null;
-        int index = 0;
         boolean flag = true;
         while (flag) {
             try {
@@ -90,9 +89,8 @@ public class ImageRecognition {
                 flag = false;
             } catch (Exception e) {
                 e.printStackTrace();
-                index++;
+                throw new Exception("无法获取本机摄像头");
             }
-
         }
 
         OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();//转换器
@@ -113,7 +111,7 @@ public class ImageRecognition {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setAlwaysOnTop(true);
 
-        Frame rotatedFrame = converter.convert(grabbedImage);//不知道为什么这里不做转换就不能推到rtmp
+        Frame rotatedFrame = converter.convert(grabbedImage);
         while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
           
             /**

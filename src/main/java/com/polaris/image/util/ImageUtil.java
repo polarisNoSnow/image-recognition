@@ -25,6 +25,8 @@ import org.bytedeco.javacpp.opencv_core.RectVector;
 import org.bytedeco.javacpp.opencv_objdetect.CascadeClassifier;
 import org.bytedeco.javacv.Java2DFrameUtils;
 
+import com.polaris.image.service.ProgressBar;
+
 /**
  * 参考：https://blog.csdn.net/lazy_p/article/details/7165999
  *
@@ -32,7 +34,13 @@ import org.bytedeco.javacv.Java2DFrameUtils;
  * @date 2019年2月11日 下午4:34:56
  * @Description 二值化、灰度化工具类
  */
-public class ImageUtil {
+public class ImageUtil extends ProgressBar{
+	
+	@Override
+	public int getProgress() {
+		return 0;
+	}
+	
 	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 20, 10, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<Runnable>());
 
@@ -40,31 +48,7 @@ public class ImageUtil {
 	private static final String BASE = "@#&$%*o!;. ";
 
 	public static void main(String[] args) throws Exception {
-		/*String fileName = "1.png";
-		BufferedImage image = ImageIO.read(new File(GeneralContants.DESTOP_PATH + fileName));
-		int a = 0, b = 0;
-		for (int i = 0; i < 10; i++) {
-			long startTime = System.currentTimeMillis();
-			ImageUtil.symbolization(image);
-			long midTime = System.currentTimeMillis();
-			BufferedImage bufferedImage_ = ImageUtil.hiperSymbolization(image);
-			long endTime = System.currentTimeMillis();
-			double first = (double) (midTime - startTime) / 1000;
-			double second = (double) (endTime - midTime) / 1000;
-			System.out.println(first + ":" + second);
-			if (second < first) {
-				b++;
-			} else {
-				a++;
-			}
-			if (i == 0) {
-				ImageIO.write(bufferedImage_, CommonUtil.getSuffix(fileName),
-						new FileOutputStream(GeneralContants.DESTOP_PATH + CommonUtil.getPrefix(fileName) + "_符号化."
-								+ CommonUtil.getSuffix(fileName)));
-			}
-		}
-		System.err.println(a + ":" + b);
-		System.exit(0);*/
+
 		String fileName = "d:\\Desktop\\images\\郡主.png";
 		File file = new File(fileName);
 		try {
@@ -126,7 +110,7 @@ public class ImageUtil {
 		
 	}
 
-	private static BufferedImage changeImage(BufferedImage image,int imageType) {
+	public static BufferedImage changeImage(BufferedImage image,int imageType) {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		BufferedImage grayImage = new BufferedImage(width, height, imageType);
