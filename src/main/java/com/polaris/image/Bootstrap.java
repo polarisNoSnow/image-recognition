@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +29,9 @@ import com.polaris.image.util.GeneralContants;
 import com.polaris.image.util.ImageUtil;
 import com.polaris.image.util.PropertiesUtil;
 
-public class Bootstrap {
+import com.sun.awt.AWTUtilities;
+
+public class Bootstrap  extends JFrame{
     private int frameWidth = 350;
     private int frameHeight = 250;
     private double startPositionX = (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - frameWidth) / 2;
@@ -65,6 +68,11 @@ public class Bootstrap {
          * 调用用户定义的方法并添加组件到面板
          */
         mainPlaceComponents(panel);
+        Bootstrap alpha=new Bootstrap();
+		alpha.setUndecorated(true);//设置是否装饰,即是否去掉标题栏等
+		AWTUtilities.setWindowOpacity(frame, 0.8f);//设置透明度
+		AWTUtilities.setWindowOpaque(frame, true);
+		alpha.setVisible(true);
 
         // 调整窗口
         //frame.pack();
